@@ -1,23 +1,31 @@
 import numpy as np
+import pygame
+import sys
+
+BLUE = (0,0,255)
+BLACK = (0,0,0)
+RED = (255,0,0)
+YELLOW = (255,255,0)
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
 
-def create_board():
+def create_board(): # Create a 6x7 board filled with zeros
     board = np.zeros((ROW_COUNT,COLUMN_COUNT))
     return board
 
-def drop_piece(board, row, col, piece):
+def drop_piece(board, row, col, piece): # Place the piece in the specified location on the board
     board[row][col] = piece
 
-def is_valid_location(board, col):
+def is_valid_location(board, col): # Check if the top row of the specified column is empty (0) to determine if a piece can be dropped there
     return board[ROW_COUNT-1][col] == 0
 
-def get_next_open_row(board, col):
+def get_next_open_row(board, col): # Iterate through the rows of the specified column to find the first empty row (0) where a piece can be dropped
     for r in range(ROW_COUNT):
         if board[r][col] == 0:
             return r
-def print_board(board):
+        
+def print_board(board): # Print the board in a way that the bottom row is displayed at the bottom of the output, which is achieved by flipping the board vertically using np.flip
     print(np.flip(board, 0))
 
 def winning_move(board, piece):
@@ -44,30 +52,53 @@ def winning_move(board, piece):
         for r in range(3, ROW_COUNT):
             if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
                 return True
+def draw_board(board):
+    for c in range(COLUMN_COUNT):
+        for r in range(ROW_COUNT):
+            pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
+            pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
+            
+    pygame.display.update()
+
 board = create_board()
 game_over = False
 turn = 0
 
+pygame.init() # Initialize the pygame library
+SQUARESIZE = 100
+width = COLUMN_COUNT * SQUARESIZE
+height = (ROW_COUNT+1) * SQUARESIZE
+size = (width, height)
+RADIUS = int(SQUARESIZE/2 - 5)
+screen = pygame.display.set_mode(size)
+draw_board(board)
+pygame.display.update() # Update the display to show the initial state of the board
+
 while not game_over:
-    # Ask for Player 1 Input
-    if turn == 0:
-        col = int(input("Player 1 Make your Selection (0-6):"))
-        if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 1)
-            if winning_move(board, 1):
-                print("PLAYER 1 WINS!")
-                game_over = True
-    else:
-        # Ask for Player 2 Input
-        col = int(input("Player 2 Make your Selection (0-6):"))
-        if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
-            if winning_move(board, 2):
-                print("PLAYER 2 WINS!")
-                game_over = True
-    print_board(board)
-    
-    turn += 1
-    turn = turn % 2 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Ask for Player 1 Input
+            if turn == 0:
+                col = int(input("Player 1 Make your Selection (0-6):"))
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    drop_piece(board, row, col, 1)
+                    if winning_move(board, 1):
+                        print("PLAYER 1 WINS!")
+                        game_over = True
+            else:
+                # Ask for Player 2 Input
+                col = int(input("Player 2 Make your Selection (0-6):"))
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    drop_piece(board, row, col, 2)
+                    if winning_move(board, 2):
+                        print("PLAYER 2 WINS!")
+                        game_over = True
+            print_board(board)
+            
+            turn += 1
+            turn = turn % 2 
+   
