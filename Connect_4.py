@@ -69,15 +69,21 @@ def draw_board(board):
     pygame.display.update() # Update the display to show the current state of the board after drawing it
 
 board = create_board()
+print_board(board)
 game_over = False
 turn = 0
 
 pygame.init() # Initialize the pygame library
+
 SQUARESIZE = 100
+
 width = COLUMN_COUNT * SQUARESIZE
 height = (ROW_COUNT+1) * SQUARESIZE
+
 size = (width, height)
+
 RADIUS = int(SQUARESIZE/2 - 5)
+
 screen = pygame.display.set_mode(size)
 draw_board(board)
 pygame.display.update() # Update the display to show the initial state of the board
@@ -97,6 +103,7 @@ while not game_over:
             else: 
                 pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE/2)), RADIUS)
         pygame.display.update()
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
             #print(event.pos)
@@ -104,9 +111,11 @@ while not game_over:
             if turn == 0:
                 posx = event.pos[0]
                 col = int(math.floor(posx/SQUARESIZE))
+
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 1)
+
                     if winning_move(board, 1):
                         label = myfont.render("PLAYER 1 WINS!", 1, RED)
                         screen.blit(label, (40, 10))
@@ -118,10 +127,12 @@ while not game_over:
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 2)
+
                     if winning_move(board, 2):
                         label = myfont.render("PLAYER 2 WINS!", 1, YELLOW)
                         screen.blit(label, (40, 10))
                         game_over = True
+                        
             print_board(board)
             draw_board(board)
         
